@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>@Barniboy — Timeless</title>
+  <meta name="description" content="Timeless." />
+  <link rel="preload" as="video" href="https://r2.guns.lol/f4cacee3-d965-4c5e-9106-77440c1a5c66.mp4" />
+  <style>
+    /* ====== Reset & base ====== */
+    *, *::before, *::after { box-sizing: border-box; }
+    html, body { height: 100%; }
+    body {
+      margin: 0;
+      color: #fff;
+      background: #000;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial, "Apple Color Emoji", "Segoe UI Emoji";
+      overflow: hidden;
+      cursor: url(https://r2.guns.lol/5685165a-869a-46df-911b-2f86d3b38fca.png) 16 16, auto;
+    }
+
+    /* ====== Background video ====== */
+    .bg {
+      position: fixed; inset: 0; z-index: -2; overflow: hidden;
+    }
+    .bg video { width: 100%; height: 100%; object-fit: cover; filter: saturate(0.9) contrast(1.05); }
+
+    /* Subtle gradient + vignette for readability */
+    .overlay {
+      position: fixed; inset: 0; z-index: -1;
+      background:
+        radial-gradient(1200px 600px at 50% 20%, rgba(255,255,255,0.10), transparent 60%),
+        linear-gradient(180deg, rgba(0,0,0,0.25), rgba(0,0,0,0.55)),
+        radial-gradient(90vw 50vh at 50% 120%, rgba(0,0,0,0.75), rgba(0,0,0,0.95));
+      pointer-events: none;
+    }
+
+    /* ====== Layout ====== */
+    .wrap {
+      position: relative; height: 100%; width: 100%; display: grid; place-items: center; padding: 24px;
+    }
+
+    .card {
+      --glass: rgba(255,255,255,0.08);
+      --border: rgba(255,255,255,0.15);
+      max-width: 740px; width: min(92vw, 740px);
+      background: linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02));
+      backdrop-filter: blur(14px) saturate(1.1);
+      -webkit-backdrop-filter: blur(14px) saturate(1.1);
+      border: 1px solid var(--border);
+      border-radius: 28px;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.45), inset 0 0 0 1px rgba(255,255,255,0.04);
+      padding: clamp(18px, 3.5vw, 34px);
+      transform: translateY(10px);
+      animation: floatIn 900ms cubic-bezier(.2,.8,.2,1) 0.2s both;
+    }
+
+    @keyframes floatIn { from { opacity: 0; transform: translateY(24px) scale(.98);} to { opacity: 1; transform: translateY(10px) scale(1);} }
+
+    .title {
+      display: flex; align-items: center; gap: 16px; justify-content: center; text-align: center; flex-wrap: wrap;
+    }
+
+    .title h1 {
+      margin: 0; font-size: clamp(28px, 5vw, 48px); letter-spacing: .4px; font-weight: 700;
+      text-shadow: 0 0 18px rgba(255,255,255,.25);
+    }
+
+    .tagline { margin: 6px 0 0; opacity: .8; font-size: clamp(14px, 2.3vw, 18px); letter-spacing: .2px; }
+
+    .badges { display: flex; gap: 10px; justify-content: center; margin-top: 18px; flex-wrap: wrap; }
+    .badge {
+      padding: 6px 10px; border-radius: 999px; border: 1px solid rgba(255,255,255,.14);
+      background: rgba(255,255,255,.07); font-size: 12px; opacity: .9;
+    }
+
+    .actions { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin-top: 22px; }
+
+    .btn {
+      display: inline-flex; align-items: center; justify-content: center; gap: 10px;
+      width: 100%; height: 48px; padding: 0 14px; border-radius: 14px; text-decoration: none; color: #fff;
+      border: 1px solid rgba(255,255,255,.16);
+      background: linear-gradient(180deg, rgba(255,255,255,.16), rgba(255,255,255,.06));
+      box-shadow: 0 6px 20px rgba(0,0,0,.4), inset 0 0 0 1px rgba(255,255,255,.06);
+      transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease, background .2s ease;
+    }
+    .btn:hover { transform: translateY(-2px); box-shadow: 0 10px 28px rgba(0,0,0,.45), inset 0 0 0 1px rgba(255,255,255,.09); }
+    .btn:active { transform: translateY(0); }
+
+    .btn svg { width: 20px; height: 20px; filter: drop-shadow(0 0 8px rgba(255,255,255,.45)); }
+
+    .controls { display: flex; align-items: center; gap: 14px; margin-top: 22px; justify-content: center; }
+    .pill {
+      display: inline-flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 999px;
+      border: 1px solid rgba(255,255,255,.15); background: rgba(255,255,255,.08);
+    }
+    input[type="range"] {
+      appearance: none; width: min(280px, 50vw); height: 4px; background: rgba(255,255,255,.25); border-radius: 999px; outline: none;
+    }
+    input[type="range"]::-webkit-slider-thumb { appearance: none; width: 16px; height: 16px; border-radius: 50%; background: #fff; box-shadow: 0 0 0 3px rgba(255,255,255,.25); cursor: pointer; }
+
+    .footer { text-align: center; opacity: .6; margin-top: 12px; font-size: 12px; }
+
+    /* Enter gate to enable audio (autoplay policies) */
+    .gate {
+      position: fixed; inset: 0; display: grid; place-items: center; background: rgba(0,0,0,.55);
+      backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); z-index: 2;
+      transition: opacity .45s ease;
+    }
+    .gate.hide { opacity: 0; pointer-events: none; }
+    .enter {
+      --b: rgba(255,255,255,.16);
+      display: inline-flex; align-items: center; gap: 12px; padding: 14px 18px; border-radius: 14px; color: #fff; font-weight: 600; letter-spacing: .3px;
+      border: 1px solid var(--b); background: linear-gradient(180deg, rgba(255,255,255,.16), rgba(255,255,255,.05));
+      box-shadow: 0 18px 60px rgba(0,0,0,.56), inset 0 0 0 1px rgba(255,255,255,.06);
+      cursor: pointer; user-select: none; transition: transform .18s ease, box-shadow .18s ease;
+    }
+    .enter:hover { transform: translateY(-2px); box-shadow: 0 24px 70px rgba(0,0,0,.6), inset 0 0 0 1px rgba(255,255,255,.08); }
+
+    /* Accessibility: reduce motion */
+    @media (prefers-reduced-motion: reduce) {
+      .card { animation: none; transform: none; }
+      .btn, .enter { transition: none; }
+    }
+  </style>
+</head>
+<body>
+  <!-- Background video -->
+  <div class="bg" aria-hidden="true">
+    <video id="bg-video" src="https://r2.guns.lol/f4cacee3-d965-4c5e-9106-77440c1a5c66.mp4" playsinline autoplay muted loop></video>
+  </div>
+  <div class="overlay" aria-hidden="true"></div>
+
+  <!-- Click-to-enter gate to allow audio playback -->
+  <div class="gate" id="gate">
+    <button class="enter" id="enterBtn" aria-label="Enter and start music">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+      Belépés
+    </button>
+  </div>
+
+  <!-- Hidden audio (looped). Replace src with your own track if you like. -->
+  <audio id="bg-audio" src="https://r2.guns.lol/f4cacee3-d965-4c5e-9106-77440c1a5c66.mp4" loop preload="auto"></audio>
+
+  <main class="wrap">
+    <section class="card" aria-label="Profile card">
+      <header class="title">
+        <h1>Barniboy</h1>
+      </header>
+      <p class="tagline">                       Timeless, like always.</p>
+
+      <div class="badges">
+        <span class="badge">verified</span>
+        <span class="badge">monochrome</span>
+        <span class="badge">vibes only</span>
+      </div>
+
+      <nav class="actions" aria-label="Social links">
+        <a class="btn" href="https://open.spotify.com/user/31kiomu5oxsc2s4g2cd6cslva6qy?si=ba243d7f708d4a28" target="_blank" rel="noopener">
+          <!-- Spotify -->
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="2.02 2.02 19.98 19.98" aria-hidden="true"><path fill="currentColor" d="M12.01 2.019c-5.495 0-9.991 4.496-9.991 9.991c0 5.494 4.496 9.99 9.991 9.99c5.494 0 9.99-4.496 9.99-9.99c0-5.495-4.446-9.991-9.99-9.991zm4.595 14.436c-.199.299-.549.4-.85.201c-2.349-1.45-5.296-1.75-8.793-.951c-.348.102-.648-.148-.748-.449c-.101-.35.149-.648.45-.749c3.795-.85 7.093-.499 9.69 1.1c.35.149.4.548.251.848zm1.2-2.747c-.251.349-.7.499-1.051.249c-2.697-1.646-6.792-2.148-9.939-1.148c-.398.101-.85-.1-.949-.498c-.101-.402.1-.852.499-.952c3.646-1.098 8.143-.548 11.239 1.351c.3.149.45.648.201.998zm.099-2.799c-3.197-1.897-8.542-2.097-11.59-1.146a.938.938 0 0 1-1.148-.6a.937.937 0 0 1 .599-1.151c3.547-1.049 9.392-.85 13.089 1.351c.449.249.599.849.349 1.298c-.25.35-.849.498-1.299.248z"/></svg>
+          Spotify
+        </a>
+        <a class="btn" href="https://github.com/Barniboy1" target="_blank" rel="noopener">
+          <!-- GitHub -->
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="2.05 2 19.95 19.46" aria-hidden="true"><path fill="currentColor" fill-rule="evenodd" d="M12.026 2c-5.509 0-9.974 4.465-9.974 9.974c0 4.406 2.857 8.145 6.821 9.465c.499.09.679-.217.679-.481c0-.237-.008-.865-.011-1.696c-2.775.602-3.361-1.338-3.361-1.338c-.452-1.152-1.107-1.459-1.107-1.459c-.905-.619.069-.605.069-.605c1.002.07 1.527 1.028 1.527 1.028c.89 1.524 2.336 1.084 2.902.829c.091-.645.351-1.085.635-1.334c-2.214-.251-4.542-1.107-4.542-4.93c0-1.087.389-1.979 1.024-2.675c-.101-.253-.446-1.268.099-2.64c0 0 .837-.269 2.742 1.021a9.582 9.582 0 0 1 2.496-.336a9.554 9.554 0 0 1 2.496.336c1.906-1.291 2.742-1.021 2.742-1.021c.545 1.372.203 2.387.099 2.64c.64.696 1.024 1.587 1.024 2.675c0 3.833-2.33 4.675-4.552 4.922c.355.308.675.916.675 1.846c0 1.334-.012 2.41-.012 2.737c0 .267.178.577.687.479C19.146 20.115 22 16.379 22 11.974C22 6.465 17.535 2 12.026 2z" clip-rule="evenodd"/></svg>
+          GitHub
+        </a>
+        <a class="btn" href="https://discord.com/users/1002689836676817047" target="_blank" rel="noopener">
+          <!-- Discord -->
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="1.96 4.26 20.03 15.53" aria-hidden="true"><path fill="currentColor" d="M14.82 4.26a10.14 10.14 0 0 0-.53 1.1a14.66 14.66 0 0 0-4.58 0a10.14 10.14 0 0 0-.53-1.1a16 16 0 0 0-4.13 1.3a17.33 17.33 0 0 0-3 11.59a16.6 16.6 0 0 0 5.07 2.59A12.89 12.89 0 0 0 8.23 18a9.65 9.65 0 0 1-1.71-.83a3.39 3.39 0 0 0 .42-.33a11.66 11.66 0 0 0 10.12 0q.21.18.42.33a10.84 10.84 0 0 1-1.71.84a12.41 12.41 0 0 0 1.08 1.78a16.44 16.44 0 0 0 5.06-2.59a17.22 17.22 0 0 0-3-11.59a16.09 16.09 0 0 0-4.09-1.35zM8.68 14.81a1.94 1.94 0 0 1-1.8-2a1.93 1.93 0 0 1 1.8-2a1.93 1.93 0 0 1 1.8 2a1.93 1.93 0 0 1-1.8 2zm6.64 0a1.94 1.94 0 0 1-1.8-2a1.93 1.93 0 0 1 1.8-2a1.92 1.92 0 0 1 1.8 2a1.92 1.92 0 0 1-1.8 2z"/></svg>
+          Discord
+        </a>
+        <a class="btn" href="https://twitch.tv/barniboy1" target="_blank" rel="noopener">
+          <!-- Twitch -->
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="1.71 0 20.57 24" aria-hidden="true"><path fill="currentColor" d="M11.571 4.714h1.715v5.143H11.57zm4.715 0H18v5.143h-1.714zM6 0L1.714 4.286v15.428h5.143V24l4.286-4.286h3.428L22.286 12V0zm14.571 11.143l-3.428 3.428h-3.429l-3 3v-3H6.857V1.714h13.714Z"/></svg>
+          Twitch
+        </a>
+      </nav>
+
+      <div class="controls" aria-label="Music controls">
+        <div class="pill">
+          <button id="playPause" aria-label="Play/Pause" title="Lejátszás / Szünet" style="all:unset; cursor:pointer; display:inline-flex; align-items:center; justify-content:center; width:28px; height:28px;">
+            <svg id="playIcon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+            <svg id="pauseIcon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="18" height="18" fill="currentColor" style="display:none"><path d="M6 5h4v14H6zM14 5h4v14h-4z"/></svg>
+          </button>
+          <input type="range" id="volume" min="0" max="1" step="0.01" value="0.65" aria-label="Hangerő" />
+        </div>
+      </div>
+      <p class="footer">© <span id="year"></span> @Barniboy • Made with ❤</p>
+    </section>
+  </main>
+
+  <script>
+    const gate = document.getElementById('gate');
+    const enterBtn = document.getElementById('enterBtn');
+    const audio = document.getElementById('bg-audio');
+    const playPause = document.getElementById('playPause');
+    const playIcon = document.getElementById('playIcon');
+    const pauseIcon = document.getElementById('pauseIcon');
+    const volume = document.getElementById('volume');
+
+    // init year
+    document.getElementById('year').textContent = new Date().getFullYear();
+
+    // Enter gate: start audio on user gesture
+    enterBtn.addEventListener('click', async () => {
+      try {
+        audio.volume = parseFloat(volume.value);
+        await audio.play();
+        gate.classList.add('hide');
+        setTimeout(() => gate.style.display = 'none', 500);
+        playIcon.style.display = 'none';
+        pauseIcon.style.display = 'block';
+      } catch (e) {
+        console.warn('Playback was blocked:', e);
+      }
+    });
+
+    // Play/Pause toggle
+    playPause.addEventListener('click', async () => {
+      if (audio.paused) {
+        try { await audio.play(); playIcon.style.display='none'; pauseIcon.style.display='block'; } catch(e){}
+      } else { audio.pause(); playIcon.style.display='block'; pauseIcon.style.display='none'; }
+    });
+
+    // Volume control
+    volume.addEventListener('input', () => { audio.volume = parseFloat(volume.value); });
+
+    // If you want a custom music file, replace the audio src above with your mp3/ogg.
+    // Optionally, you can keep the background video muted to avoid double audio.
+  </script>
+</body>
+</html>
